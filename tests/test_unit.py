@@ -156,8 +156,7 @@ def test_find_gaps_nogap():
     assert not get_fixer(get_fn('ace-ala2-nme.pdb')).find_gaps()
 
 
-# @unittest.skipUnless(_has_program('tleap'), "Must has tleap")
-@pytest.mark.skip(reason="Could not open file leaprc.dna.bsc1: not found")
+@unittest.skipUnless(_has_program('tleap'), "Must has tleap")
 def test_mutate():
     pdb_fh = get_fn('ala3_alpha.pdb')
     parm = pmd.load_file(pdb_fh)
