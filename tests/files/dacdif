@@ -20,6 +20,7 @@ Usage: $0 [-k] [-s] [-r relerr] [-a abserr] [-t {0,1,2,3,4,5,6,7,8}]  \
 Description
        Strip irrelevant differences from all files and then diff
        original_file with each new_file, sending diff's to new_file.$dif_ext
+       Note that the options should precede the arguments.
 
 Options
        -k
@@ -45,13 +46,14 @@ Options
 
        -a <abserr>  Ignore errors with absolute diffs less than <abserr>;
               uses Nelson Beebe's ndiff program.  Ignored if "-r" is set.
+       -f     test is allowed to fail (print "(ignored)" after "possible FAILURE:")
 EOF
 
 exit 1;
 }
 
 # standardize command line options
-optionlist='kst:vwr:a:'
+optionlist='kst:vwr:a:f'
 set -- `getopt "$optionlist" "$@"`
 
 # parse options
@@ -64,6 +66,7 @@ keep_files=''
 ignore_sign=''
 ignore_whitespace=''
 truncate=''
+failmsg='possible FAILURE:'
 verbose=$on
 while [ $# -gt 0 ]
 do
@@ -75,6 +78,7 @@ do
         -w)    ignore_whitespace=$on ;;
         -r)    ndiff=$on; shift; relerr=$1 ;;
         -a)    ndiffa=$on; shift; abserr=$1 ;;
+        -f)    failmsg="possible FAILURE: (ignored)";;
         --)    shift; break ;;
         -*)    usage ;;
         *)     break ;;
@@ -91,7 +95,7 @@ fi
 # if either file does not exist, print FAILURE and exit
 for path in $@; do
   if [ ! -e $path ]; then
-    echo "possible FAILURE:  file $path does not exist."
+    echo "${failmsg}  file $path does not exist."
     echo "=============================================================="
     exit
   fi
@@ -108,18 +112,26 @@ done
 # Delete lines that contain VERSION
 ##%VERSION  VERSION_STAMP = V0001.000  DATE = 08/06/01  11:44:33
 #
-# Delete pmemd and sander version lines
+# Delete version lines for these programs:
 ##          Amber 16 PMEMD                              2016
 ##          Amber 16 SANDER                              2016
+##Welcome to acdoctor 17.2: check and diagnosis problems in molecular input files.
+##Welcome to antechamber 17.2: molecular input file processor.
 #
 # Removing all path specific information could be done, but instead we
-# merely remove these 3 explicit instances:
+# merely remove these explicit instances:
 # Remove lines referring to 'dat/leap/', since these may depend on AMBERHOME
 # Remove lines referring to reduce database, since these may depend on AMBERHOME
-# Remove path prefix from antechamber Running lines; these depend on AMBERHOME
+# Remove path prefix from antechamber et al.; these depend on AMBERHOME:
 ##Running: /tmp/amber/bin/atomtype -i ACDOCTOR_BOND.ac -o ACDOCTOR_ATOM.ac -p gaff
+##/tmp/amber/bin/acdoctor: Fatal Error!
+##/tmp/amber/bin/to_be_dispatched/acdoctor: Fatal Error!
+# Remove message lines referring to 'teLeap', since these depend on AMBERHOME:
+##/tmp/amber/bin/teLeap: Note.
 #
 # Remove lines referring to dates; whoever did this did not document it.
+# Remove leap log lines referring to dates:
+##log started: Mon Feb 26 16:38:46 2018
 #
 # Convert lowercase floating point exponent delimiters to uppercase:
 #  e+  ->  E+
@@ -154,9 +166,16 @@ do
         -e '\@VERSION@d' \
         -e '\@^          Amber .. SANDER@d' \
         -e '\@^          Amber .. PMEMD@d' \
+        -e '\@^Welcome to acdoctor[. 0-9]*: @d' \
+        -e '\@^Welcome to antechamber[. 0-9]*: @d' \
         -e '\@Database of HETATM@d' \
         -e '\@dat/leap/@d' \
-        -e 's|^Running: [a-zA-Z0-9\._/]*[Aa][Mm][Bb][Ee][Rr][0-9]*/|Running:|' \
+        -e 's|^Running: [-a-zA-Z0-9\.@_/]*bin/|Running:|' \
+        -e 's|^Running: [-a-zA-Z0-9\.@_/]*bin/to_be_dispatched/|Running:|' \
+        -e 's|^[-a-zA-Z0-9\._@/]*bin/\([a-zA-Z0-9_]*\): Fatal Error|\1: Fatal Error|' \
+        -e 's|^[-a-zA-Z0-9\._@/]*bin/to_be_dispatched/\([a-zA-Z0-9_]*\): Fatal Error|\1: Fatal Error|' \
+        -e 's|^[-a-zA-Z0-9\._@/]*bin/teLeap: |teLeap: |' \
+        -e 's|^log started: [MTWTFSS][ouehrau][oeduitn] [A-GJL-PR-VYa-gjl-pr-vy][A-GJL-PR-VYa-gjl-pr-vy][A-GJL-PR-VYa-gjl-pr-vy] [ 0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [12][90][0-9][0-9]|log started: |' \
         -e '\@.* on ../../....@d' \
         -e 's@e+@E+@g' \
         -e 's@e-@E-@g' \
@@ -288,8 +307,8 @@ do
         #for writing TEST_FAILURES info file
         fulldir=`pwd`
         dacdifdir=`echo $0 | sed s/dacdif//`
-        echo "possible FAILURE:  check $path.$dif_ext"
-        echo "possible FAILURE:  check $path.$dif_ext" >> $dacdifdir/TEST_FAILURES.diff
+        echo "${failmsg}  check $path.$dif_ext"
+        echo "${failmsg}  check $path.$dif_ext" >> $dacdifdir/TEST_FAILURES.diff
         echo $fulldir >> $dacdifdir/TEST_FAILURES.diff
         cat $path.$dif_ext >> $dacdifdir/TEST_FAILURES.diff
         echo "---------------------------------------" >> $dacdifdir/TEST_FAILURES.diff
