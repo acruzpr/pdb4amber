@@ -157,7 +157,8 @@ class AmberPDBFixer(object):
             self.write_pdb(in_pdb)
             with open('leap.in', 'w') as fh:
                 fh.write('source leaprc.protein.ff14SB\n')
-                fh.write('source leaprc.dna.bsc1\n')
+                fh.write('source leaprc.DNA.bsc1\n')
+                fh.write('source leaprc.RNA.OL3\n')
                 fh.write('x = loadpdb {}\n'.format(in_pdb))
                 fh.write('savepdb x {}\n'.format(out_pdb))
                 fh.write('quit')
@@ -744,7 +745,7 @@ def main(argv=None):
         "--add-missing-atoms",
         action="store_true",
         dest="add_missing_atoms",
-        help="Use tleap to add missing atoms")
+        help="Use tleap to add missing atoms. (EXPERIMENTAL OPTION)")
     parser.add_argument(
         "--model",
         type=int,

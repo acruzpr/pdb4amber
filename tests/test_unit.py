@@ -70,6 +70,16 @@ def test_find_missing_heavy_atoms():
     assert len(pdbfixer.find_missing_heavy_atoms()) == 2
     assert 'CB' not in set(atom.name for atom in pdbfixer.parm.atoms)
 
+@unittest.skipUnless(_has_program('tleap'), "Must has tleap")
+def test_add_missing_atoms():
+    fname = get_fn('dna.pdb')
+    parm = pmd.load_file(fname)
+    parm = parm['!@H=']
+    assert len(parm['@H='].atoms) == 0
+    fixer = AmberPDBFixer(parm)
+    fixer.add_missing_atoms()
+    assert len(fixer.parm['@H='].atoms) > 0
+
 
 def test_strip_water():
     fn = get_fn('4lzt/4lzt_h.pdb')
