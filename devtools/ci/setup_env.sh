@@ -22,8 +22,7 @@ conda install coverage -y
 # conda install libgfortran -c conda-forge -y
 
 conda install ambertools=18 -c http://ambermd.org/downloads/ambertools/conda/ -y
-conda install ipywidgets -c conda-forge -y
-conda install nglview -c bioconda -y
+pip install mock
 
 # pytest
 pip install pytest

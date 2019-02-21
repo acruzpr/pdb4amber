@@ -37,6 +37,16 @@ def test_assign_histidine():
     ]
     assert his_residues == ['HID']
 
+    # Do not rename to HIS if this residue does not
+    # have hydrogen.
+    parm2 = pmd.Structure()
+    for resnum, resname in enumerate(['HIE', 'HID', 'HIS']):
+        atom = pmd.Atom(name='C', atomic_number=6)
+        parm2.add_atom(atom, resname, resnum=resnum, chain='A')
+    fixer2 = AmberPDBFixer(parm2)
+    fixer2.assign_histidine()
+    assert ['HIE', 'HID', 'HIS'] == [res.name for res in fixer2.parm.residues]
+
 
 def test_constph():
     fn = get_fn('4lzt/4lzt_h.pdb')
@@ -70,7 +80,7 @@ def test_find_missing_heavy_atoms():
     assert len(pdbfixer.find_missing_heavy_atoms()) == 2
     assert 'CB' not in set(atom.name for atom in pdbfixer.parm.atoms)
 
-@unittest.skipUnless(_has_program('tleap'), "Must has tleap")
+@unittest.skipUnless(_has_program('tleap'), "Must have tleap")
 def test_add_missing_atoms():
     fname = get_fn('dna.pdb')
     parm = pmd.load_file(fname)
@@ -166,7 +176,7 @@ def test_find_gaps_nogap():
     assert not get_fixer(get_fn('ace-ala2-nme.pdb')).find_gaps()
 
 
-@unittest.skipUnless(_has_program('tleap'), "Must has tleap")
+@unittest.skipUnless(_has_program('tleap'), "Must have tleap")
 def test_mutate():
     pdb_fh = get_fn('ala3_alpha.pdb')
     parm = pmd.load_file(pdb_fh)
@@ -185,7 +195,7 @@ def test_mutate():
     ] == ['CA', 'CB', 'CG', 'CD', 'CZ', 'C'])
 
 
-@unittest.skipUnless(_has_program('AddToBox'), "Must has AddToBox")
+@unittest.skipUnless(_has_program('AddToBox'), "Must have AddToBox")
 def test_packmol():
     pdb_fh = get_fn('2igd/2igd.pdb')
     parm = pmd.load_file(pdb_fh)

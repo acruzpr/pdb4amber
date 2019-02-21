@@ -6,6 +6,7 @@ import parmed as pmd
 import numpy as np
 from parmed.residue import WATER_NAMES
 import pytest
+from mock import patch
 try:
     from io import StringIO
 except ImportError:
@@ -27,18 +28,19 @@ except IOError:
 
 @unittest.skipUnless(internet_ok, 'must have internet connection to rcsb')
 def test_write_model():
-    orig_parm = pmd.download_PDB('1l2y')
+    fname = get_fn('1l2y.pdb')
+    orig_parm = pmd.load_file(fname)
     pdb_out = 'out.pdb'
 
     # default
     with tempfolder():
-        pdb4amber.main(['1l2y', '--pdbid', '-o', pdb_out])
+        pdb4amber.main([fname,'-o', pdb_out])
         parm = pmd.load_file(pdb_out)
         assert parm.get_coordinates().shape == (1, 304, 3)
 
     # model 1
     with tempfolder():
-        pdb4amber.main(['1l2y', '--pdbid', '-o', pdb_out, '--model', '1'])
+        pdb4amber.main([fname, '-o', pdb_out, '--model', '1'])
         parm = pmd.load_file(pdb_out)
         assert parm.get_coordinates().shape == (1, 304, 3)
         np.testing.assert_almost_equal(parm.coordinates,
@@ -47,7 +49,7 @@ def test_write_model():
     # model 2
     model = 2
     with tempfolder():
-        pdb4amber.main(['1l2y', '--pdbid', '-o', pdb_out, '--model',
+        pdb4amber.main([fname, '-o', pdb_out, '--model',
             str(model)
         ])
         parm = pmd.load_file(pdb_out)
@@ -56,14 +58,10 @@ def test_write_model():
                                        orig_parm.get_coordinates()[model - 1])
 
 
-@unittest.skipUnless(internet_ok, 'must have internet connection to rcsb')
-def test_keep_all_model():
-    orig_parm = pmd.download_PDB('1l2y')
-    pdb_out = 'out.pdb'
-
-    # default
+    # keep all models
     with tempfolder():
-        pdb4amber.main(['1l2y', '--pdbid', '-o', pdb_out, '--model', '-1'])
+        pdb_out = 'out.pdb'
+        pdb4amber.main([fname, '-o', pdb_out, '--model', '-1'])
         parm = pmd.load_file(pdb_out)
         assert parm.get_coordinates().shape == (38, 304, 3)
 
@@ -256,31 +254,17 @@ def test_stdin_stdout():
 
 
 @unittest.skipUnless(internet_ok, 'internet')
-def test_fetch_pdbid():
+def test_fetch_pdbid(tmpdir):
     ''' e.g: pdb4amber 1l2y --pdbid '''
     pdb_fn = '1l2y'
-    command = ['pdb4amber', pdb_fn, '--pdbid']
 
-    with tempfolder():
-        output = subprocess.check_output(command).decode()
-        input_pdb = StringIO(output)
-        input_pdb.seek(0)
-        parm = pmd.read_PDB(input_pdb)
-        assert len(parm.atoms) == 304
-
-
-@unittest.skipUnless(internet_ok, 'internet')
-def test_fetch_pdbid_and_use_reduce():
-    ''' e.g: pdb4amber 1tsu --pdbid --reduce'''
-    pdb_fn = '1tsu'
-    command = ['pdb4amber', pdb_fn, '--pdbid', '--reduce']
-
-    with tempfolder():
-        output = subprocess.check_output(command).decode()
-        input_pdb = StringIO(output)
-        input_pdb.seek(0)
-        parm = pmd.read_PDB(input_pdb)
-        assert len(parm.atoms) == 3174
+    with tmpdir.as_cwd():
+        with patch('parmed.download_PDB') as mock_download:
+            def effect(*args):
+                return pmd.load_file(get_fn('1l2y.pdb'))
+            mock_download.side_effect = effect
+            pdb4amber.main(['1l2y', '--pdbid', '-o', 'out.pdb'])
+            assert mock_download.called
 
 
 def test_simplest_command_pdb4amber_mypdb():

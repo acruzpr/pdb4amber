@@ -5,7 +5,7 @@ import sys
 from setuptools import setup
 
 # Note: Please update version in pdb4amber.__version__
-version = '1.6.dev'
+version = '1.7.dev'
 kws = dict(entry_points={
     'console_scripts': ['pdb4amber = pdb4amber.pdb4amber:main'],
 })
