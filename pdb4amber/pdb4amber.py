@@ -446,6 +446,7 @@ def run(
         arg_nohyd=False,
         arg_dry=False,
         arg_prot=False,
+        arg_amber_compatible_residues=False,
         arg_strip_atom_mask=None,
         arg_mutate_string=None,
         arg_constph=False,
@@ -541,6 +542,8 @@ def run(
     # keep only protein:==================================================
     if arg_prot:
         pdbfixer.parm.strip('!:' + ','.join(RESPROT))
+    if arg_amber_compatible_residues:
+        pdbfixer.parm.strip('!:' + ','.join(AMBER_SUPPORTED_RESNAMES))
 
     # strip atoms with given mask    =====================================
     if arg_strip_atom_mask is not None:
@@ -706,6 +709,12 @@ def main(argv=None):
         "--prot",
         action="store_true",
         dest="prot",
+        help="keep only protein residues (default: no)")
+    parser.add_argument(
+        "-a",
+        "--amber-compatible-residues",
+        action="store_true",
+        dest="amber_compatible_residues",
         help="keep only Amber-compatible residues (default: no)")
     parser.add_argument(
         "--constantph",
@@ -805,6 +814,7 @@ def main(argv=None):
         arg_strip_atom_mask=opt.strip_atom_mask,
         arg_mutate_string=opt.mutation_string,
         arg_prot=opt.prot,
+        arg_amber_compatible_residues=opt.amber_compatible_residues,
         arg_constph=opt.constantph,
         arg_mostpop=opt.mostpop,
         arg_reduce=opt.reduce,

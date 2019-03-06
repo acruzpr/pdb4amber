@@ -34,7 +34,7 @@ def test_write_model():
 
     # default
     with tempfolder():
-        pdb4amber.main([fname,'-o', pdb_out])
+        pdb4amber.main([fname, '-o', pdb_out])
         parm = pmd.load_file(pdb_out)
         assert parm.get_coordinates().shape == (1, 304, 3)
 
@@ -49,14 +49,11 @@ def test_write_model():
     # model 2
     model = 2
     with tempfolder():
-        pdb4amber.main([fname, '-o', pdb_out, '--model',
-            str(model)
-        ])
+        pdb4amber.main([fname, '-o', pdb_out, '--model', str(model)])
         parm = pmd.load_file(pdb_out)
         assert parm.get_coordinates().shape == (1, 304, 3)
         np.testing.assert_almost_equal(parm.coordinates,
                                        orig_parm.get_coordinates()[model - 1])
-
 
     # keep all models
     with tempfolder():
@@ -128,7 +125,8 @@ def test_write_conect():
     with tempfolder():
         pdb4amber.main(command)
         with open(pdb_out) as fh:
-            assert 'ATOM   1196  SG  CYX H 148      55.729  28.382  19.687  1.00 10.07' in fh.read()
+            assert 'ATOM   1196  SG  CYX H 148      55.729  28.382  19.687  1.00 10.07' in fh.read(
+            )
 
 
 def test_constantph():
@@ -149,33 +147,49 @@ def test_no_hydrogen():
 
     with tempfolder():
         orig_parm = pmd.load_file(pdb_fn)
-        atom_names = set(atom.name for atom in orig_parm.atoms
-                         if atom.atomic_number == 1)
+        atom_names = set(
+            atom.name for atom in orig_parm.atoms if atom.atomic_number == 1)
         assert atom_names
 
         pdb4amber.main(command)
         parm = pmd.load_file(pdb_out)
-        atom_names = set(atom.name for atom in parm.atoms
-                         if atom.atomic_number == 1)
+        atom_names = set(
+            atom.name for atom in parm.atoms if atom.atomic_number == 1)
         assert not atom_names
 
 
-def test_prot_only():
+def test_prot_only(tmpdir):
     option = '--pro'
+    pdb_in = get_fn('3orn.pdb')
     pdb_out = 'out.pdb'
-    command = ['-i', pdb_fn, '-o', pdb_out, option]
+    command = ['-i', pdb_in, '-o', pdb_out, option]
 
-    with tempfolder():
-        orig_parm = pmd.load_file(pdb_fn)
-        res_names = set(res.name for res in orig_parm.residues)
-        assert 'NO3' in res_names
-        assert 'HOH' in res_names
-
+    with tmpdir.as_cwd():
         pdb4amber.main(command)
         parm = pmd.load_file(pdb_out)
         res_names = set(res.name for res in parm.residues)
-        assert 'NO3' not in res_names
-        assert 'HOH' not in res_names
+        assert res_names == {
+            'ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS',
+            'ILE', 'LEU', 'LYS', 'MET', 'PHE', 'PRO', 'SER', 'THR', 'TRP',
+            'TYR', 'VAL'
+        }
+
+
+def test_amber_compatible_residues(tmpdir):
+    option = '--amber-compatible-residues'
+    pdb_in = get_fn('3orn.pdb')
+    pdb_out = 'out.pdb'
+    command = ['-i', pdb_in, '-o', pdb_out, option]
+
+    with tmpdir.as_cwd():
+        pdb4amber.main(command)
+        parm = pmd.load_file(pdb_out)
+        res_names = set(res.name for res in parm.residues)
+        assert res_names == {
+            'ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS',
+            'HOH', 'ILE', 'LEU', 'LYS', 'MET', 'MG', 'PHE', 'PRO', 'SER',
+            'THR', 'TRP', 'TYR', 'VAL'
+        }
 
 
 def test_writing_renum():
@@ -202,14 +216,14 @@ def test_reduce_with_pdb_input():
 
     with tempfolder():
         orig_parm = pmd.load_file(pdb_fn)
-        atom_names = set(atom.name for atom in orig_parm.atoms
-                         if atom.atomic_number == 1)
+        atom_names = set(
+            atom.name for atom in orig_parm.atoms if atom.atomic_number == 1)
         assert not atom_names
 
         pdb4amber.main(command)
         parm = pmd.load_file(pdb_out)
-        atom_names = set(atom.name for atom in parm.atoms
-                         if atom.atomic_number == 1)
+        atom_names = set(
+            atom.name for atom in parm.atoms if atom.atomic_number == 1)
         assert atom_names
 
 
@@ -232,8 +246,8 @@ def test_reduce_with_cif_input():
     with tempfolder():
         pdb4amber.main(command)
         parm = pmd.load_file(pdb_out)
-        atom_names = set(atom.name for atom in parm.atoms
-                         if atom.atomic_number == 1)
+        atom_names = set(
+            atom.name for atom in parm.atoms if atom.atomic_number == 1)
         assert atom_names
 
 
@@ -260,8 +274,10 @@ def test_fetch_pdbid(tmpdir):
 
     with tmpdir.as_cwd():
         with patch('parmed.download_PDB') as mock_download:
+
             def effect(*args):
                 return pmd.load_file(get_fn('1l2y.pdb'))
+
             mock_download.side_effect = effect
             pdb4amber.main(['1l2y', '--pdbid', '-o', 'out.pdb'])
             assert mock_download.called
@@ -382,6 +398,7 @@ def get_num_ters(fn):
                 num_ters += 1
     return num_ters
 
+
 def test_noter():
     pdb_fh = get_fn('2igd/2igd.pdb')
     parm = pmd.load_file(pdb_fh)
@@ -429,7 +446,8 @@ def test_noter_using_run_method():
             arg_reduce=False,
             arg_logfile=sys.stderr,
             arg_conect=False,
-            arg_noter=True, )
+            arg_noter=True,
+        )
         assert get_num_ters(noter_fn) == 0
 
 

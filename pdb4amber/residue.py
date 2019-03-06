@@ -74,7 +74,9 @@ RESPROT = ('ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS',
            'TYR', 'VAL', 'HID', 'HIE', 'HIN', 'HIP', 'CYX', 'ASH', 'GLH',
            'LYH', 'ACE', 'NME', 'GL4', 'AS4')
 
-RESNA = ('C', 'G', 'U', 'A', 'DC', 'DG', 'DT', 'DA', 'OHE' )
+RESNA = ('C', 'G', 'U', 'A', 'DC', 'DG', 'DT', 'DA', 'OHE', 'C5', 'G5', 'U5',
+         'A5', 'C3', 'G3', 'U3', 'A3', 'DC5', 'DG5', 'DT5', 'DA5', 'DC3',
+         'DG3', 'DT3', 'DA3' )
 
 RESSOLV = ('WAT', 'HOH', 'AG', 'AL', 'Ag', 'BA', 'BR', 'Be', 'CA', 'CD', 'CE',
            'CL', 'CO', 'CR', 'CS', 'CU', 'CU1', 'Ce', 'Cl-', 'Cr', 'Dy', 'EU',
@@ -83,6 +85,8 @@ RESSOLV = ('WAT', 'HOH', 'AG', 'AL', 'Ag', 'BA', 'BR', 'Be', 'CA', 'CD', 'CE',
            'NI', 'Na+', 'Nd', 'PB', 'PD', 'PR', 'PT', 'Pu', 'RB', 'Ra', 'SM',
            'SR', 'Sm', 'Sn', 'TB', 'TL', 'Th', 'Tl', 'Tm', 'U4+', 'V2+', 'Y',
            'YB2', 'ZN', 'Zr')
+
+AMBER_SUPPORTED_RESNAMES = RESPROT + RESNA + RESSOLV
 
 #  Following not used right now; probably needs an flag to indicate that
 #    we expect sugar residues in the input pdb file.)
@@ -234,6 +238,3 @@ RESSUGAR = (
     'ZrA', 'ZrB', 'ZrD', 'ZrU', 'ZtA', 'ZtB', 'ZuA', 'ZuB', 'ZxA', 'ZxB',
     'ZxD', 'ZxU', 'ZzA', 'ZzB', '0AE', '2AE', '4AE', 'YGa', '0AF', '2AF',
     '4AF', 'YAF', '0dR', '3dR', '4dR', 'WdR')
-
-# AMBER_SUPPORTED_RESNAMES = set(RESPROT + RESNA + RESSOLV + RESSUGAR)
-AMBER_SUPPORTED_RESNAMES = set(RESPROT + RESNA + RESSOLV)
