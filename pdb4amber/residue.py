@@ -38,7 +38,7 @@ __all__ = [
 
 from . import utils
 
-# 
+#
 HEAVY_ATOM_DICT = {
     'ALA': 5,
     'ARG': 11,
@@ -78,7 +78,7 @@ RESPROT = ('ALA', 'ARG', 'ASN', 'ASP', 'CYS', 'GLN', 'GLU', 'GLY', 'HIS',
 
 RESNA = ('C', 'G', 'U', 'A', 'DC', 'DG', 'DT', 'DA', 'OHE', 'C5', 'G5', 'U5',
          'A5', 'C3', 'G3', 'U3', 'A3', 'DC5', 'DG5', 'DT5', 'DA5', 'DC3',
-         'DG3', 'DT3', 'DA3' )
+         'DG3', 'DT3', 'DA3')
 
 RESSOLV = ('WAT', 'HOH', 'AG', 'AL', 'Ag', 'BA', 'BR', 'Be', 'CA', 'CD', 'CE',
            'CL', 'CO', 'CR', 'CS', 'CU', 'CU1', 'Ce', 'Cl-', 'Cr', 'Dy', 'EU',
@@ -88,7 +88,9 @@ RESSOLV = ('WAT', 'HOH', 'AG', 'AL', 'Ag', 'BA', 'BR', 'Be', 'CA', 'CD', 'CE',
            'SR', 'Sm', 'Sn', 'TB', 'TL', 'Th', 'Tl', 'Tm', 'U4+', 'V2+', 'Y',
            'YB2', 'ZN', 'Zr')
 
-AMBER_SUPPORTED_RESNAMES = RESPROT + RESNA + RESSOLV + tuple(utils.get_amber_compatible_resnames())
+AMBER_SUPPORTED_RESNAMES = sorted(
+    set(RESPROT + RESNA + RESSOLV) |
+        utils.get_amber_compatible_resnames())
 
 #  Following not used right now; probably needs an flag to indicate that
 #    we expect sugar residues in the input pdb file.)
