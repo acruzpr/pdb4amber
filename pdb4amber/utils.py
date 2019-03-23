@@ -51,6 +51,8 @@ def get_amber_compatible_resnames():
         lib_files = ['RNA.lib']
 
         residue_set = set()
-        for fname in (f for f in lib_files if os.path.exists(f)):
-            residue_set.update(set(pmd.load_file(fname)))
+        for fname in lib_files:
+            abs_fname = os.path.join(lib_dir, fname)
+            if os.path.exists(abs_fname):
+                residue_set.update(set(pmd.load_file(abs_fname)))
         return residue_set
