@@ -36,6 +36,8 @@ __all__ = [
     'RESPROT', 'RESNA', 'RESSOLV', 'RESSUGAR', 'AMBER_SUPPORTED_RESNAMES'
 ]
 
+from . import utils
+
 # 
 HEAVY_ATOM_DICT = {
     'ALA': 5,
@@ -86,7 +88,7 @@ RESSOLV = ('WAT', 'HOH', 'AG', 'AL', 'Ag', 'BA', 'BR', 'Be', 'CA', 'CD', 'CE',
            'SR', 'Sm', 'Sn', 'TB', 'TL', 'Th', 'Tl', 'Tm', 'U4+', 'V2+', 'Y',
            'YB2', 'ZN', 'Zr')
 
-AMBER_SUPPORTED_RESNAMES = RESPROT + RESNA + RESSOLV
+AMBER_SUPPORTED_RESNAMES = RESPROT + RESNA + RESSOLV + utils.get_amber_compatible_resnames()
 
 #  Following not used right now; probably needs an flag to indicate that
 #    we expect sugar residues in the input pdb file.)
