@@ -48,7 +48,7 @@ def get_amber_compatible_resnames():
         return set()
     else:
         lib_dir = os.path.join(amberhome, 'dat', 'leap', 'lib')
-        lib_files = ['RNA.lib']
+        lib_files = ['RNA.lib', 'terminalphos.lib']
 
         residue_set = set()
         for fname in lib_files:
