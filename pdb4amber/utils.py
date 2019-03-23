@@ -38,3 +38,19 @@ def amberbin(program_str):
 def which(program):
     from distutils.spawn import find_executable
     return find_executable(program)
+
+
+def get_amber_compatible_resnames():
+    import parmed as pmd
+
+    amberhome = os.getenv('AMBERHOME')
+    if amberhome is None:
+        return set()
+    else:
+        lib_dir = os.path.join(amberhome, 'dat', 'leap', 'lib')
+        lib_files = ['RNA.lib']
+
+        residue_set = set()
+        for fname in lib_files:
+            residue_set.update(set(pmd.load_file(fname)))
+        return residue_set
