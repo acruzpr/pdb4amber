@@ -83,6 +83,18 @@ def test_dry():
         assert set(res.name for res in water_parm.residues) == {'HOH'}
 
 
+def test_noh(tmpdir):
+    inp_pdb = get_fn('nmr_struc_1.pdb')
+    with tmpdir.as_cwd():
+        parm_with_h = pmd.load_file(inp_pdb)
+        assert len(parm_with_h.atoms) == 304
+        assert len([atom for atom in parm_with_h.atoms if atom.atomic_number == 1]) == 150
+        pdb4amber.main([inp_pdb, '-y', '-o', 'out.pdb'])
+        parm = pmd.load_file('out.pdb')
+        assert not [atom for atom in parm.atoms if atom.atomic_number == 1]
+        assert len(parm.atoms) == 154
+
+
 def test_not_write_sslink_conect_record():
     pdb_out = 'out.pdb'
     pdb_fn = get_fn('4lzt/4lzt_h.pdb')

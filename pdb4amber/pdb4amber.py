@@ -519,7 +519,7 @@ def run(
 
     # remove hydrogens if option -y is used:==============================
     if arg_nohyd:
-        pdbfixer.parm.strip('@H=')
+        pdbfixer.parm.strip('@/H')
 
     # find non-standard Amber residues:===================================
     #   TODO: why does the following call discard the return array of
