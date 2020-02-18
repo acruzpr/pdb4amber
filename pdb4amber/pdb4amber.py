@@ -132,6 +132,50 @@ class AmberPDBFixer(object):
                     residue.name = 'HIE'
         return self
 
+    def assign_acid(self):
+        ''' Assign correct name for Aspartate and Glutamate residues based on the atom name
+    
+        Returns
+        -------
+        parm : updated `parm`
+        '''
+        amber_acid_names = set(['ASH', 'GLH'])
+        possible_names = set([
+            'ASP', 'GLU', 
+        ]) | amber_acid_names
+
+        for residue in self.parm.residues:
+            if residue.name in possible_names:
+                atom_name_set = sorted(
+                    set(atom.name for atom in residue.atoms
+                        if atom.atomic_number == 1))
+                if 'HD2' in atom_name_set:
+                    residue.name = 'ASH'
+                elif 'HE2' in atom_name_set:
+                    residue.name = 'GLH'
+        return self
+
+    def assign_basic(self):
+        ''' Assign correct name for Lysine residues based on the atom name
+    
+        Returns
+        -------
+        parm : updated `parm`
+        '''
+        amber_basic_names = set(['LYN'])
+        possible_names = set([
+            'LYS', 
+        ]) | amber_basic_names
+
+        for residue in self.parm.residues:
+            if residue.name in possible_names:
+                atom_name_set = sorted(
+                    set(atom.name for atom in residue.atoms
+                        if atom.atomic_number == 1))
+                if 'HZ1' not in atom_name_set:
+                    residue.name = 'LYN'
+        return self
+
     def strip(self, mask):
         self.parm.strip(mask)
         return self
@@ -555,11 +599,14 @@ def run(
         water_parm = pdbfixer.parm[water_mask]
         pdbfixer.remove_water()
         water_parm.save('{}_water.pdb'.format(base_filename), overwrite=True)
-    # find histidines that might have to be changed:=====================
+    # find histidines, aspartate, glutamate and lysine that might have to be changed:=====================
     if arg_constph:
         pdbfixer.constph()
     else:
         pdbfixer.assign_histidine()
+        pdbfixer.assign_acid()
+        pdbfixer.assign_basic()
+
 
     # find possible S-S in the final protein:=============================
     sslist, cys_cys_atomidx_set = pdbfixer.find_disulfide()
